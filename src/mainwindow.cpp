@@ -20,13 +20,8 @@ void MainWindow::checkForUpdates()
     // ================================
     QSimpleUpdater* updater = QSimpleUpdater::getInstance();
 
-    // 正确用法（全部是官方存在的函数）
-    updater->setUpdateUrl("QtAutoUpdaterDemo", updateUrl);
-    updater->setModuleVersion("QtAutoUpdaterDemo", APP_VERSION);
-    updater->setNotifyOnUpdate("QtAutoUpdaterDemo", true);
-
-    // 检查更新（2 个参数，官方原版）
-    updater->checkForUpdates("QtAutoUpdaterDemo", updateUrl);
-
+    updater->setModuleVersion(updateUrl , APP_VERSION);
+    updater->setNotifyOnUpdate(updateUrl, true);
+    updater->checkForUpdates( updateUrl);
     qDebug() << "更新检查完成";
 }
