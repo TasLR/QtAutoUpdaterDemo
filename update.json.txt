@@ -1,0 +1,10 @@
+[
+    {
+        "name": "QtAutoUpdaterDemo",
+        "version": "1.0.0",
+        "windows": {
+            "download": "",
+            "changelog": "Initial release"
+        }
+    }
+]
