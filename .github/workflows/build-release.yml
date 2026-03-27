@@ -42,9 +42,8 @@ jobs:
       - name: Deploy Qt Libraries
         run: windeployqt build/Release/QtAutoUpdaterDemo.exe
 
-      - name: Build NSIS Installer
+      - name: Make Installer
         run: |
-          choco install nsis
           $VERSION = "${{ github.ref_name }}".Replace("v", "")
           makensis -DAPP_VERSION=$VERSION -DBUILD_DIR=build installer/setup.nsi
 
