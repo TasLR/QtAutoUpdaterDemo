@@ -12,13 +12,18 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::checkForUpdates()
 {
-    // 这里改成你自己的仓库地址
+    // 👉 改成你自己的 update.json 地址
     const QString updateUrl = "https://raw.githubusercontent.com/TasLR/QtAutoUpdaterDemo/main/update.json";
 
     auto updater = QSimpleUpdater::getInstance();
-    updater->setModuleVersion("QtAutoUpdaterDemo", APP_VERSION);
-    updater->setNotifyOnUpdate("QtAutoUpdaterDemo", true);
-    updater->checkForUpdates("QtAutoUpdaterDemo", updateUrl);
 
-    qDebug() << "Update check done.";
+    // ✅ 正确用法：只设置 URL，新版不需要传 name 了
+    updater->setVersionKey("version");           // JSON 版本字段
+    updater->setDownloadUrlKey("windows.download"); // 下载链接路径
+    updater->setChangelogKey("windows.changelog"); // 更新日志路径
+
+    updater->setApplicationVersion(APP_VERSION); // 当前版本
+    updater->checkForUpdates(updateUrl);         // ✅ 只传 1 个参数
+
+    qDebug() << "更新检查完成";
 }
