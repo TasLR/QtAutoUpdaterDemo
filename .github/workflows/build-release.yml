@@ -37,9 +37,6 @@ jobs:
           $VERSION = "${{ github.ref_name }}".Replace("v", "")
           makensis -DAPP_VERSION=$VERSION -DBUILD_DIR=build installer/setup.nsi
 
-      # ==============================================
-      # ✅ 自动生成标准 QSimpleUpdater JSON
-      # ==============================================
       - name: Update update.json (QSimpleUpdater standard format)
         shell: pwsh
         run: |
@@ -72,8 +69,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # ✅ 这里已修复：action-gh-release
       - name: Create Release
-        uses: softprops/gh-release@v2
+        uses: softprops/action-gh-release@v2
         with:
           files: QtAutoUpdaterDemo-Setup-*.exe
         env:
