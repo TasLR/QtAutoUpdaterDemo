@@ -69,7 +69,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # ✅ 这里已修复：action-gh-release
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
