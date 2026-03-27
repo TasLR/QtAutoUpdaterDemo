@@ -13,7 +13,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::checkForUpdates()
 {
     // 这里改成你自己的仓库地址
-    const QString updateUrl = "https://raw.githubusercontent.com/你的用户名/QtAutoUpdaterDemo/main/update.json";
+    const QString updateUrl = "https://raw.githubusercontent.com/TasLR/QtAutoUpdaterDemo/main/update.json";
 
     auto updater = QSimpleUpdater::getInstance();
     updater->setModuleVersion("QtAutoUpdaterDemo", APP_VERSION);

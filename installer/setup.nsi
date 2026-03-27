@@ -1,6 +1,6 @@
 !define APP_NAME "QtAutoUpdaterDemo"
 !define COMPANY "Demo"
-!define URL "https://github.com/你的用户名/QtAutoUpdaterDemo"
+!define URL "https://github.com/TasLR/QtAutoUpdaterDemo"
 
 SetCompressor /SOLID lzma
 Name "${APP_NAME}"
