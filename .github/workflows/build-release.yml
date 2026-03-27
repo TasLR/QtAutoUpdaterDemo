@@ -35,7 +35,7 @@ jobs:
         run: cmake --build build --config Release
 
       - name: Deploy Qt Libraries
-        run: windeployqt build/bin/QtAutoUpdaterDemo.exe
+        run: windeployqt build/Release/QtAutoUpdaterDemo.exe
 
       - name: Build NSIS Installer
         run: |
