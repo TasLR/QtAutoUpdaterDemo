@@ -43,9 +43,13 @@ jobs:
         run: windeployqt build/Release/QtAutoUpdaterDemo.exe
 
       - name: Make Installer
+        shell: pwsh
         run: |
           $VERSION = "${{ github.ref_name }}".Replace("v", "")
-          makensis -DAPP_VERSION=$VERSION -DBUILD_DIR=build installer/setup.nsi
+          & "C:\Program Files\NSIS\makensis.exe" `
+            -DAPP_VERSION=$VERSION `
+            -DBUILD_DIR=build `
+            installer/setup.nsi
 
       # 自动生成标准 QSimpleUpdater json
       - name: Update update.json
