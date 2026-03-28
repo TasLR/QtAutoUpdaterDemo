@@ -18,7 +18,7 @@ InstallDir "$PROGRAMFILES64\${APP_NAME}"
 
 Section
     SetOverwrite on
-    # 🔥 你的真实路径：build/Release/
-    File /r "${BUILD_DIR}\Release\*"
-    CreateShortCut "$DESKTOP\${APP_NAME}.lnx" "$INSTDIR\${APP_NAME}.exe"
+    # 🔥 绝对、唯一、真实路径
+    File /r "${BUILD_DIR}\Release\*.*"
+    CreateShortCut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\${APP_NAME}.exe"
 SectionEnd
