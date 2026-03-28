@@ -7,13 +7,11 @@ Name "${APP_NAME}"
 OutFile "${APP_NAME}-Setup-${APP_VERSION}.exe"
 InstallDir "$PROGRAMFILES64\${APP_NAME}"
 
-!include "MUI2.nsi"
-
-!insertmacro MUI_PAGE_WELCOME
-!insertmacro MUI_PAGE_DIRECTORY
-!insertmacro MUI_PAGE_INSTFILES
-!insertmacro MUI_PAGE_FINISH
-!insertmacro MUI_LANGUAGE "SimpChinese"
+# ---------------------------------
+# 🔥 删掉所有 MUI2，用默认界面
+# ---------------------------------
+Page directory
+Page instfiles
 
 Section
     SetOverwrite on
