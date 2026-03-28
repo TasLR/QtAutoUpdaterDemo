@@ -36,26 +36,30 @@ jobs:
       - name: Deploy Qt
         run: windeployqt build/Release/QtAutoUpdaterDemo.exe
 
+      # 🔥 绝杀：把所有文件复制到 installer 文件夹，绝对能找到
+      - name: Copy files
+        run: copy build\Release\* installer\
+
       - name: Build Installer
         shell: pwsh
         run: |
           $v = "${{ github.ref_name }}".Replace("v","")
-          & "C:\Program Files (x86)\NSIS\makensis.exe" -DAPP_VERSION=$v -DBUILD_DIR=build installer/setup.nsi
+          & "C:\Program Files (x86)\NSIS\makensis.exe" -DAPP_VERSION=$v installer/setup.nsi
 
       - name: Generate update.json
         shell: pwsh
         run: |
           $ver = "${{ github.ref_name }}".Replace("v","")
-          $json = '[{"name":"QtAutoUpdaterDemo","version":"' + $ver + '","windows":{"download":"https://github.com/TasLR/QtAutoUpdaterDemo/releases/download/v' + $ver + '/QtAutoUpdaterDemo-Setup-' + $ver + '.exe","changelog":"Auto release"}}]'
+          $json = '[{"name":"QtAutoUpdaterDemo","version":"'+$ver+'","windows":{"download":"https://github.com/TasLR/QtAutoUpdaterDemo/releases/download/v'+$ver+'/QtAutoUpdaterDemo-Setup-'+$ver+'.exe","changelog":"Auto release"}}]'
           $json | Out-File update.json -Encoding utf8
 
-      - name: Commit update.json
+      - name: Commit
         uses: EndBug/add-and-commit@v9
         with:
           message: "CI release"
           add: update.json
 
-      - name: Create Release
+      - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: QtAutoUpdaterDemo-Setup-*.exe
