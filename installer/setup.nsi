@@ -8,12 +8,17 @@ OutFile "${APP_NAME}-Setup-${APP_VERSION}.exe"
 InstallDir "$PROGRAMFILES64\${APP_NAME}"
 
 !include "MUI2.nsh"
+
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_DIRECTORY
 !insertmacro MUI_PAGE_INSTFILES
 !insertmacro MUI_PAGE_FINISH
 
-SetOverwrite on
-File /r "${BUILD_DIR}/release/bin/*"
+!insertmacro MUI_LANGUAGE "SimpChinese"
 
-CreateShortCut "$DESKTOP\${APP_NAME}.lnk" "$INSTDIR\${APP_NAME}.exe"
+Section
+    SetOverwrite on
+    # 🔥 你的真实路径：build/Release/
+    File /r "${BUILD_DIR}\Release\*"
+    CreateShortCut "$DESKTOP\${APP_NAME}.lnx" "$INSTDIR\${APP_NAME}.exe"
+SectionEnd

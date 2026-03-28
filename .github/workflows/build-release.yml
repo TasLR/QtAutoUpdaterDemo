@@ -13,7 +13,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 自动下载 QSimpleUpdater（无需子模块，彻底解决报错）
       - name: Download QSimpleUpdater
         shell: pwsh
         run: |
@@ -29,9 +28,7 @@ jobs:
           arch: win64_msvc2019_64
 
       - name: Install NSIS
-        run: |
-          choco install nsis -y
-          echo "C:\Program Files\NSIS\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        run: choco install nsis -y
 
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
@@ -39,9 +36,11 @@ jobs:
       - name: Build Project
         run: cmake --build build --config Release
 
-      - name: Deploy Qt Libraries
+      # 🔥 你的真实路径：build/Release/
+      - name: Windeployqt
         run: windeployqt build/Release/QtAutoUpdaterDemo.exe
 
+      # 🔥 正确 NSIS 路径
       - name: Make Installer
         shell: pwsh
         run: |
@@ -51,7 +50,6 @@ jobs:
               -DBUILD_DIR=build `
               installer/setup.nsi
 
-      # 自动生成标准 QSimpleUpdater json
       - name: Update update.json
         shell: pwsh
         run: |
@@ -59,34 +57,30 @@ jobs:
           $REPO = "${{ github.repository }}"
           $TAG = "${{ github.ref_name }}"
           $URL = "https://github.com/$REPO/releases/download/$TAG/QtAutoUpdaterDemo-Setup-$VER.exe"
-
           $LOG = git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD
-          if (-not $LOG) { $LOG = "- 优化体验，修复问题" }
+          if (-not $LOG) { $LOG = "- 优化体验" }
 
           $json = @(
               [PSCustomObject]@{
                   name    = "QtAutoUpdaterDemo"
                   version = $VER
-                  windows = [PSCustomObject]@{
+                  windows = @{
                       download  = $URL
                       changelog = ($LOG -join "`n")
                   }
               }
           )
-
           $json | ConvertTo-Json -Depth 10 | Set-Content update.json -Encoding UTF8
 
-      # 自动提交更新后的 json
-      - name: Commit & Push update.json
+      - name: Commit update.json
         uses: EndBug/add-and-commit@v9
         with:
-          message: "CI: 自动更新 update.json ${{ github.ref_name }}"
+          message: "CI: 自动更新版本 ${{ github.ref_name }}"
           add: update.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 发布 Release（已修复正确 Action）
-      - name: Create GitHub Release
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: QtAutoUpdaterDemo-Setup-*.exe
