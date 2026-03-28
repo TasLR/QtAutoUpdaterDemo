@@ -46,10 +46,10 @@ jobs:
         shell: pwsh
         run: |
           $VERSION = "${{ github.ref_name }}".Replace("v", "")
-          & "C:\Program Files\NSIS\makensis.exe" `
-            -DAPP_VERSION=$VERSION `
-            -DBUILD_DIR=build `
-            installer/setup.nsi
+          & "C:\Program Files (x86)\NSIS\makensis.exe" `
+              -DAPP_VERSION=$VERSION `
+              -DBUILD_DIR=build `
+              installer/setup.nsi
 
       # 自动生成标准 QSimpleUpdater json
       - name: Update update.json
