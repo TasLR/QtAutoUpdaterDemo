@@ -33,23 +33,17 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      # 🔥 暴力查看真实路径（调试用）
       - name: List build files
         run: dir build /s
 
-      # 🔥 绝对路径部署 Qt
       - name: Windeployqt
         run: windeployqt "$env:GITHUB_WORKSPACE\build\Release\QtAutoUpdaterDemo.exe"
 
-      # 🔥 暴力绝对路径打包（永远不会找不到）
       - name: Make Installer
         shell: pwsh
         run: |
           $v = "${{ github.ref_name }}".Replace("v","")
-          & "C:\Program Files (x86)\NSIS\makensis.exe" `
-          -DAPP_VERSION=$v `
-          -DBUILD_DIR="$env:GITHUB_WORKSPACE\build" `
-          installer/setup.nsi
+          & "C:\Program Files (x86)\NSIS\makensis.exe" -DAPP_VERSION=$v -DBUILD_DIR="$env:GITHUB_WORKSPACE\build" installer/setup.nsi
 
       - name: Gen update.json
         shell: pwsh
