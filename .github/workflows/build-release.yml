@@ -10,21 +10,18 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
 
       - name: Download QSimpleUpdater
         shell: pwsh
         run: |
-          New-Item -ItemType Directory -Path 3rdparty -Force | Out-Null
+          mkdir 3rdparty -Force
           git clone https://github.com/alex-spataru/QSimpleUpdater.git 3rdparty/QSimpleUpdater
 
-      - name: Install Qt 6
+      - name: Install Qt
         uses: jurplel/install-qt-action@v4
         with:
           version: 6.6.3
           host: windows
-          target: desktop
           arch: win64_msvc2019_64
 
       - name: Install NSIS
@@ -33,56 +30,52 @@ jobs:
       - name: Configure CMake
         run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build Project
+      - name: Build
         run: cmake --build build --config Release
 
-      # 🔥 你的真实路径：build/Release/
-      - name: Windeployqt
-        run: windeployqt build/Release/QtAutoUpdaterDemo.exe
+      # 🔥 暴力查看真实路径（调试用）
+      - name: List build files
+        run: dir build /s
 
-      # 🔥 正确 NSIS 路径
+      # 🔥 绝对路径部署 Qt
+      - name: Windeployqt
+        run: windeployqt "$env:GITHUB_WORKSPACE\build\Release\QtAutoUpdaterDemo.exe"
+
+      # 🔥 暴力绝对路径打包（永远不会找不到）
       - name: Make Installer
         shell: pwsh
         run: |
-          $VERSION = "${{ github.ref_name }}".Replace("v", "")
+          $v = "${{ github.ref_name }}".Replace("v","")
           & "C:\Program Files (x86)\NSIS\makensis.exe" `
-              -DAPP_VERSION=$VERSION `
-              -DBUILD_DIR=build `
-              installer/setup.nsi
+          -DAPP_VERSION=$v `
+          -DBUILD_DIR="$env:GITHUB_WORKSPACE\build" `
+          installer/setup.nsi
 
-      - name: Update update.json
+      - name: Gen update.json
         shell: pwsh
         run: |
-          $VER = "${{ github.ref_name }}".Replace("v", "")
-          $REPO = "${{ github.repository }}"
-          $TAG = "${{ github.ref_name }}"
-          $URL = "https://github.com/$REPO/releases/download/$TAG/QtAutoUpdaterDemo-Setup-$VER.exe"
-          $LOG = git log --pretty=format:"- %s" $(git describe --tags --abbrev=0 HEAD^)..HEAD
-          if (-not $LOG) { $LOG = "- 优化体验" }
-
-          $json = @(
-              [PSCustomObject]@{
-                  name    = "QtAutoUpdaterDemo"
-                  version = $VER
-                  windows = @{
-                      download  = $URL
-                      changelog = ($LOG -join "`n")
-                  }
-              }
-          )
-          $json | ConvertTo-Json -Depth 10 | Set-Content update.json -Encoding UTF8
+          $ver = "${{ github.ref_name }}".Replace("v","")
+          $json = @"
+[
+    {
+        "name": "QtAutoUpdaterDemo",
+        "version": "$ver",
+        "windows": {
+            "download": "https://github.com/TasLR/QtAutoUpdaterDemo/releases/download/v$ver/QtAutoUpdaterDemo-Setup-$ver.exe",
+            "changelog": "自动发布版本 v$ver"
+        }
+    }
+]
+"@
+          $json | Out-File update.json -Encoding utf8
 
       - name: Commit update.json
         uses: EndBug/add-and-commit@v9
         with:
-          message: "CI: 自动更新版本 ${{ github.ref_name }}"
+          message: "CI release"
           add: update.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: QtAutoUpdaterDemo-Setup-*.exe
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
