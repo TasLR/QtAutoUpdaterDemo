@@ -33,43 +33,40 @@ jobs:
       - name: Build
         run: cmake --build build --config Release
 
-      - name: List build files
+      - name: List files
         run: dir build /s
 
       - name: Windeployqt
-        run: windeployqt "$env:GITHUB_WORKSPACE\build\Release\QtAutoUpdaterDemo.exe"
+        run: windeployqt build/Release/QtAutoUpdaterDemo.exe
 
       - name: Make Installer
         shell: pwsh
         run: |
           $v = "${{ github.ref_name }}".Replace("v","")
-          & "C:\Program Files (x86)\NSIS\makensis.exe" -DAPP_VERSION=$v -DBUILD_DIR="$env:GITHUB_WORKSPACE\build" installer/setup.nsi
+          & "C:\Program Files (x86)\NSIS\makensis.exe" -DAPP_VERSION=$v -DBUILD_DIR=build installer/setup.nsi
 
       - name: Gen update.json
         shell: pwsh
         run: |
           $ver = "${{ github.ref_name }}".Replace("v","")
-          $json = @"
-[
-    {
-        "name": "QtAutoUpdaterDemo",
-        "version": "$ver",
-        "windows": {
-            "download": "https://github.com/TasLR/QtAutoUpdaterDemo/releases/download/v$ver/QtAutoUpdaterDemo-Setup-$ver.exe",
-            "changelog": "自动发布版本 v$ver"
-        }
-    }
-]
-"@
-          $json | Out-File update.json -Encoding utf8
+          echo "[
+            {
+              `"name`": `"QtAutoUpdaterDemo`",
+              `"version`": `"$ver`",
+              `"windows`": {
+                `"download`": `"https://github.com/TasLR/QtAutoUpdaterDemo/releases/download/v$ver/QtAutoUpdaterDemo-Setup-$ver.exe`",
+                `"changelog`": `"Auto release`"
+              }
+            }
+          ]" | Out-File -FilePath update.json -Encoding utf8
 
-      - name: Commit update.json
+      - name: Commit
         uses: EndBug/add-and-commit@v9
         with:
           message: "CI release"
           add: update.json
 
-      - name: Create Release
+      - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: QtAutoUpdaterDemo-Setup-*.exe
